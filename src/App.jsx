@@ -4,6 +4,7 @@ import { STUDENTS } from './data/students';
 import SessionForm from './components/SessionForm';
 import SessionHistory from './components/SessionHistory';
 import StudentStats from './components/StudentStats';
+import StudentForm from './components/StudenForm';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('form');
@@ -58,6 +59,12 @@ export default function App() {
           >
             📊 Statystyki
           </button>
+          <button 
+            className={`tab-button ${activeTab === 'students' ? 'active' : ''}`}
+            onClick={() => setActiveTab('students')}
+          >
+            📊 Uczniowie
+          </button>
         </div>
 
         {activeTab === 'form' && (
@@ -74,6 +81,10 @@ export default function App() {
 
         {activeTab === 'stats' && (
           <StudentStats sessions={sessions} students={STUDENTS} />
+        )}
+
+        {activeTab === 'students' && (
+          <StudentForm sessions={sessions} students={STUDENTS} />
         )}
       </div>
     </>
