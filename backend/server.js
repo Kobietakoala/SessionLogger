@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Init DB + routes (modularnie)
 const initDb = require('./db/init.js');
 // const studentsRouter = require('./routes/students.js');
 // const sessionsRouter = require('./routes/sessions.js');
@@ -14,7 +13,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:80' }));
 app.use(express.json());
 
-// Init baza (schemat + seed)
 initDb();
 
 // Routes
@@ -29,6 +27,12 @@ app.get('/health', (req, res) => {
     db: 'connected' 
   });
 });
+
+// logs API
+app.get('/api/logs', (req, res) => {
+  res.json(getLogs(100));
+});
+
 
 app.listen(PORT, () => {
   console.log(`Backend działa na http://localhost:${PORT}`);
