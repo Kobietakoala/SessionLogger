@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 
 // Init DB + routes (modularnie)
-// const initDb = require('./db/init.js');
+const initDb = require('./db/init.js');
 // const studentsRouter = require('./routes/students.js');
 // const sessionsRouter = require('./routes/sessions.js');
 
@@ -15,7 +15,7 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:80' }));
 app.use(express.json());
 
 // Init baza (schemat + seed)
-// initDb();
+initDb();
 
 // Routes
 // app.use('/api/students', studentsRouter);
