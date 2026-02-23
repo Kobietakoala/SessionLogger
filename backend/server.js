@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-
+const { notFoundHandler, errorHandler } = require('./middleware/errorHandler.js');
 const initDb = require('./db/init.js');
 // const studentsRouter = require('./routes/students.js');
 // const sessionsRouter = require('./routes/sessions.js');
@@ -19,6 +19,9 @@ initDb();
 // app.use('/api/students', studentsRouter);
 // app.use('/api/sessions', sessionsRouter);
 
+app.use(notFoundHandler);
+app.use(errorHandler);
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
@@ -34,7 +37,8 @@ app.get('/api/logs', (req, res) => {
 });
 
 
+//@todo - dodać tłumaczenia
 app.listen(PORT, () => {
-  console.log(`Backend działa na http://localhost:${PORT}`);
+  console.log(`The backend runs on http://localhost:${PORT}`);
   // console.log('API: /api/students, /api/sessions');
 });
