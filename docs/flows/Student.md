@@ -128,14 +128,15 @@ id nie istnieje → 404 → UI: „Uczeń nie znaleziony”
 
 ```mermaid
 journey
-  title Student – szczegóły
+  title Student – archiwizacja
   section Frontend
     Tab Uczniowie (1s): 5: Użytkownik
-    Kliknij ucznia (1s): 5: Użytkownik
-    Widok szczegółów (2s): 5: Użytkownik
+    Kliknij Archiwizuj (1s): 3: Użytkownik
+    Potwierdź modal Tak (2s): 4: Użytkownik
   section Backend
-    GET /api/students/id (120ms): 5: System
-    DB SELECT student (10ms): 5: System
+    DB UPDATE /api/students/id (120ms): 5: System
+    Kaskada danych powiązanych (10ms): 3: System
   section UI
-    Render danych + akcje (1s): 5: Użytkownik
+    Toast archiwizowano (1s): 5: Użytkownik
+    Lista bez ucznia (1s): 5: Użytkownik
 ```
