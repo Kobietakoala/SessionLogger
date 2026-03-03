@@ -38,8 +38,7 @@ journey
 
 ## 2. Edycja ucznia
 ### Cel
-Użtkownik edytuje ucznia, żeby dane były aktualne
-
+Użytkownik edytuje ucznia, żeby dane były aktualne
 
 ✅ Success:
 zakualizowane dane ucznia pojawiają się na liście
@@ -70,7 +69,7 @@ journey
 Użytkownik usuwa ucznia, aby zakończyć na stałe wspópracę z uczniem
 
 ✅ Success:
-usunięty uczeń nie pojawia się na liście
+usunięty uczeń nie pojawia się na liście aktywnych i archiwizowanych uczniów
 nic nie jest zwracane
 ❌ Error:
 id nie istnieje → 404 → UI: „Uczeń nie znaleziony”
@@ -79,7 +78,7 @@ id nie istnieje → 404 → UI: „Uczeń nie znaleziony”
 journey
   title Student – usunięcie
   section Frontend
-    Tab Uczniowie (1s): 5: Użytkownik
+    Tab Uczniowie -> Archwizowani (1s): 5: Użytkownik
     Kliknij Usuń (1s): 3: Użytkownik
     Potwierdź modal Tak (2s): 4: Użytkownik
   section Backend
@@ -121,7 +120,7 @@ journey
 Użytkownik archiwizuje ucznia, aby określic zawieszoną wspópracę
 
 ✅ Success:
-archiwizowany uczeń nie pojawia się na liście uczniów
+archiwizowany uczeń nie pojawia się na liście aktywych uczniów
 zwracane jest id
 ❌ Error:
 id nie istnieje → 404 → UI: „Uczeń nie znaleziony”
@@ -134,9 +133,9 @@ journey
     Kliknij Archiwizuj (1s): 3: Użytkownik
     Potwierdź modal Tak (2s): 4: Użytkownik
   section Backend
-    DB UPDATE /api/students/id (120ms): 5: System
+    DB UPDATE /api/students/id/archive (120ms): 5: System
     Kaskada danych powiązanych (10ms): 3: System
   section UI
     Toast archiwizowano (1s): 5: Użytkownik
-    Lista bez ucznia (1s): 5: Użytkownik
+    Lista archiwizowanych uczniów bez ucznia (1s): 5: Użytkownik
 ```
