@@ -108,6 +108,6 @@ ALTER TABLE "contact" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ul
 
 ALTER TABLE "classDate" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
 
-ALTER TABLE "student" ADD FOREIGN KEY ("ulid") REFERENCES "cooperation" ("student_ulid");
+ALTER TABLE "cooperation" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
 
 ALTER TABLE "note" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
