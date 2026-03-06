@@ -1,9 +1,22 @@
+
+CREATE TABLE "student" (
+  "ulid" TEXT PRIMARY KEY,
+  "name" varchar(100),
+  "number" integer,
+  "price" integer,
+  "rate" tinyint(1),
+  "startDate" datetime,
+  "deleted" tinyint(1) DEFAULT 0,
+  "created_at" timestamp,
+  "updated_at" timestamp
+);
+
 CREATE TABLE "contact" (
   "ulid" TEXT PRIMARY KEY,
   "name" "VARCHAR(100)" NOT NULL,
   "email" "VARCHAR(254)" UNIQUE,
   "phone" "VARCHAR(32)" UNIQUE NOT NULL,
-  "student_ulid" text,
+  "student_ulid" text REFERENCES "student" ("ulid"),
   "deleted" tinyint(1) DEFAULT 0,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -16,7 +29,7 @@ CREATE TABLE "classDate" (
   "isFree" bool NOT NULL DEFAULT 0,
   "repeat" bool DEFAULT 0,
   "everyDays" tinyint(1) DEFAULT 0,
-  "student_ulid" text,
+  "student_ulid" text REFERENCES "student" ("ulid"),
   "deleted" tinyint(1) DEFAULT 0,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -28,7 +41,7 @@ CREATE TABLE "cooperation" (
   "paymentType" tinyint NOT NULL,
   "boardUrl" text,
   "registrationUrl" text,
-  "student_ulid" text UNIQUE NOT NULL,
+  "student_ulid" text UNIQUE NOT NULL REFERENCES "student" ("ulid"),
   "deleted" tinyint(1) DEFAULT 0,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -38,19 +51,7 @@ CREATE TABLE "note" (
   "ulid" TEXT PRIMARY KEY,
   "type" tinyint DEFAULT 0,
   "note" text,
-  "student_ulid" text,
-  "deleted" tinyint(1) DEFAULT 0,
-  "created_at" timestamp,
-  "updated_at" timestamp
-);
-
-CREATE TABLE "student" (
-  "ulid" TEXT PRIMARY KEY,
-  "name" varchar(100),
-  "number" integer,
-  "price" integer,
-  "rate" tinyint(1),
-  "startDate" datetime,
+  "student_ulid" text REFERENCES "student" ("ulid"),
   "deleted" tinyint(1) DEFAULT 0,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -103,11 +104,3 @@ COMMENT ON COLUMN "student"."price" IS 'cena zajęć';
 COMMENT ON COLUMN "student"."rate" IS 'ocena po pierwszych zajeciach od 1 do 5';
 
 COMMENT ON COLUMN "student"."startDate" IS 'data rozpoczecia zajec';
-
-ALTER TABLE "contact" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
-
-ALTER TABLE "classDate" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
-
-ALTER TABLE "cooperation" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
-
-ALTER TABLE "note" ADD FOREIGN KEY ("student_ulid") REFERENCES "student" ("ulid");
