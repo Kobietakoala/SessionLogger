@@ -1,0 +1,967 @@
+openapi: 3.1.0
+info:
+  title: "Session Logger API"
+  version: "1.0.0"
+  description: |
+    API do zarządzania uczniami, sesjami, kontaktami i notatkami w systemie Session Logger.
+    Cooperation jest generowane fejkowo po stronie backendu – pełne wsparcie w przyszłości.
+servers:
+  - url: http://localhost:3000/api
+    description: Lokalne środowisko deweloperskie
+
+components:
+  schemas:
+    # === STUDENT ===
+    Student:
+      type: object
+      description: "Uczeń w systemie Session Logger"
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unikalny identyfikator ucznia (ULID, PRIMARY KEY)"
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+          description: "Imię i nazwisko ucznia"
+        number:
+          type: integer
+          description: "Numer zgłoszenia lub numer generatywny (zależnie od typu współpracy)"
+          nullable: true
+        price:
+          type: integer
+          description: "Cena zajęć za godzinę"
+        rate:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+          description: "Ocena po pierwszych zajęciach (1-5)"
+        startDate:
+          type: string
+          format: date-time
+          nullable: true
+          description: "Data rozpoczęcia zajęć"
+        createdAt:
+          type: string
+          format: date-time
+          description: "Data utworzenia rekordu (auto)"
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Data ostatniej aktualizacji (auto)"
+          readOnly: true
+        cooperation:
+          type: object
+          description: "Fejkowe dane współpracy (pełne w przyszłości)"
+          readOnly: true
+      required: [id, name, price]
+
+    CreateStudent:
+      type: object
+      description: "Dane do utworzenia ucznia"
+      allOf:
+        - $ref: '#/components/schemas/Student'
+        - type: object
+          properties:
+            id:
+              description: "Automatycznie generowany"
+              readOnly: true
+            createdAt:
+              description: "Automatycznie ustawiane"
+              readOnly: true
+            updatedAt:
+              description: "Automatycznie ustawiane"
+              readOnly: true
+          required: [name, price]
+
+    UpdateStudent:
+      allOf:
+        - $ref: '#/components/schemas/CreateStudent'
+        - type: object
+          description: "Dane do aktualizacji ucznia (wszystkie opcjonalne)"
+
+    # === CONTACT ===
+    Contact:
+      type: object
+      description: "Kontakt powiązany z uczniem"
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unikalny ID kontaktu (PRIMARY KEY)"
+          readOnly: true
+        studentId:
+          type: string
+          format: uuid
+          description: "ID ucznia (FOREIGN KEY)"
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+          description: "Imię/nazwisko kontaktowej osoby"
+        email:
+          type: string
+          format: email
+          maxLength: 254
+          description: "Adres e-mail (UNIQUE)"
+          null: true
+        phone:
+          type: string
+          maxLength: 32
+          description: "Numer telefonu (UNIQUE, NOT NULL)"
+        createdAt:
+          type: string
+          format: date-time
+          description: "Data utworzenia"
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Data aktualizacji"
+          readOnly: true
+      required: [id, studentId, name, phone]
+
+    CreateContact:
+      type: object
+      description: "Dane do dodania kontaktu"
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: "Imię/nazwisko"
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 32
+          description: "Numer telefonu"
+      required: [name, phone]
+
+    UpdateContact:
+      allOf:
+        - $ref: '#/components/schemas/CreateContact'
+        - type: object
+          description: "Aktualizacja kontaktu (wszystkie opcjonalne)"
+
+    # === NOTE ===
+    Note:
+      type: object
+      description: "Notatka powiązana z uczniem"
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "Unikalny ID notatki (PRIMARY KEY)"
+          readOnly: true
+        studentId:
+          type: string
+          format: uuid
+          description: "ID ucznia (FOREIGN KEY)"
+          readOnly: true
+        type:
+          type: integer
+          enum: [0, 1]
+          description: "Typ: 0=standardowa, 1=dodatkowa"
+          default: 0
+        note:
+          type: string
+          description: "Treść notatki"
+        createdAt:
+          type: string
+          format: date-time
+          description: "Data utworzenia"
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Data aktualizacji"
+          readOnly: true
+      required: [id, studentId, note]
+
+    CreateNote:
+      type: object
+      description: "Dane do dodania notatki"
+      properties:
+        type:
+          type: integer
+          enum: [0, 1]
+          description: "Typ notatki"
+          default: 0
+        note:
+          type: string
+          description: "Treść notatki"
+      required: [note]
+
+    UpdateNote:
+      allOf:
+        - $ref: '#/components/schemas/CreateNote'
+        - type: object
+          description: "Aktualizacja notatki (wszystkie opcjonalne)"
+  # === CALENDAR (classDate) ===
+    CalendarEntry:
+      type: object
+      description: "Termin dostępności ucznia (z classDate)"
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "ID terminu (PRIMARY KEY)"
+          readOnly: true
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: "Dzień tygodnia: 1=poniedziałek, 7=niedziela"
+        hour:
+          type: integer
+          minimum: 0
+          maximum: 2359
+          description: "Godzina w formacie HHMM (np. 1430 = 14:30)"
+        isFree:
+          type: boolean
+          default: false
+          description: "Czy termin jest wolny (1=tak, 0=nie)"
+        repeat:
+          type: boolean
+          default: false
+          description: "Czy termin powtarzalny"
+        everyDays:
+          type: integer
+          enum: [0, 7, 14, 21, 28]
+          default: 0
+          description: "Co ile dni powtarzane (0=jednorazowy)"
+        studentId:
+          type: string
+          format: uuid
+          description: "ID ucznia (FOREIGN KEY)"
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+      required: [id, dayOfWeek, hour, isFree]
+
+    CalendarList:
+      type: object
+      description: "Lista terminów kalendarza ucznia"
+      properties:
+        calendar:
+          type: array
+          items:
+            $ref: '#/components/schemas/CalendarEntry'
+        total:
+          type: integer
+          description: "Liczba wszystkich terminów"
+
+    # === COOPERATION ===
+    Cooperation:
+      type: object
+      description: "Dane współpracy ucznia (z cooperation)"
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: "ID współpracy (PRIMARY KEY)"
+          readOnly: true
+        type:
+          type: integer
+          description: "Typ: 0=private, 1=bukiSchool"
+        paymentType:
+          type: integer
+          description: "Płatność: 0=blik, 1=przelew, 2=przelew opóźniony"
+        boardUrl:
+          type: string
+          nullable: true
+          description: "Link do tablicy"
+        registrationUrl:
+          type: string
+          nullable: true
+          description: "Link do zgłoszenia"
+        studentId:
+          type: string
+          format: uuid
+          description: "ID ucznia (UNIQUE FOREIGN KEY)"
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+      required: [id, type, paymentType, studentId]
+
+paths:
+  # === STUDENTS CRUD ===
+  /api/students:
+    post:
+      summary: "Tworzy nowego ucznia w systemie"
+      tags: [Students]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateStudent' }
+      responses:
+        '201':
+          description: "Uczeń utworzony pomyślnie"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '400': { description: "Błąd walidacji danych wejściowych" }
+    get:
+      summary: "Pobiera listę wszystkich uczniów"
+      tags: [Students]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: "Wyszukiwanie po name (opcjonalne)"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+          description: "Limit wyników"
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: "Paginacja offset"
+      responses:
+        '200':
+          description: "Lista uczniów"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  students:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+                  total:
+                    type: integer
+                    description: "Całkowita liczba uczniów"
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+    head:
+      summary: "Sprawdza istnienie listy uczniów (HEAD)"
+      tags: [Students]
+      description: "Zwraca status 200 jeśli endpoint istnieje, bez body"
+      responses:
+        '200': { description: "Lista uczniów dostępna" }
+        '405': { description: "Metoda HEAD nieobsługiwana" }
+
+    options:
+      summary: "Pobiera dostępne metody HTTP dla /students (OPTIONS)"
+      tags: [Students]
+      responses:
+        '200':
+          description: "Dostępne metody"
+          headers:
+            Allow:
+              schema:
+                type: string
+                example: "GET, POST, HEAD, OPTIONS, TRACE"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  methods:
+                    type: array
+                    items:
+                      type: string
+                    example: ["GET", "POST", "HEAD", "OPTIONS", "TRACE"]
+
+    trace:
+      summary: "Debug endpointu /students (TRACE)"
+      tags: [Students]
+      description: "Zwraca nagłówki requestu (do debugowania)"
+      responses:
+        '200':
+          description: "Nagłówki requestu"
+          content:
+            message/http:
+              schema:
+                type: string
+                format: http
+
+  /api/students/{id}:
+    get:
+      summary: "Pobiera szczegóły konkretnego ucznia"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: "Dane ucznia"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+        '404': { description: "Uczeń nie znaleziony" }
+
+    put:
+      summary: "Nadpisuje wszystkie dane ucznia (pełna aktualizacja)"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateStudent' }
+      responses:
+        '200':
+          description: "Uczeń zaktualizowany"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+
+    patch:
+      summary: "Częściowo aktualizuje dane ucznia (tylko podane pola)"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateStudent' }
+      responses:
+        '200':
+          description: "Uczeń zaktualizowany"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Student' }
+
+    delete:
+      summary: "Usuwa ucznia wraz z powiązanymi danymi"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: "Uczeń usunięty" }
+        '404': { description: "Uczeń nie znaleziony" }
+    head:
+      summary: "Sprawdza istnienie ucznia {id} (HEAD)"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: "Uczeń istnieje" }
+        '404': { description: "Uczeń nie istnieje" }
+
+    options:
+      summary: "Metody HTTP dla konkretnego ucznia"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          headers:
+            Allow:
+              schema:
+                type: string
+                example: "GET, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE"
+
+    trace:
+      summary: "Debug ucznia {id}"
+      tags: [Students]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            message/http:
+              schema:
+                type: string
+                format: http
+
+  # === CONTACTS CRUD ===
+  /api/students/{studentId}/contacts:
+    post:
+      summary: "Dodaje nowy kontakt do ucznia"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateContact' }
+      responses:
+        '201':
+          description: "Kontakt dodany"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contact' }
+    get:
+      summary: "Pobiera wszystkie kontakty konkretnego ucznia"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: "Lista kontaktów ucznia"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+    head:
+      summary: "Sprawdza listę kontaktów ucznia"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: "Kontakty dostępne" }
+
+    options:
+      summary: "Metody dla kontaktów ucznia"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          headers:
+            Allow:
+              schema:
+                type: string
+                example: "GET, POST, HEAD, OPTIONS, TRACE"
+
+    trace:
+      summary: "Debug listy kontaktów"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            message/http:
+              schema:
+                type: string
+                format: http
+
+  /api/students/{studentId}/contacts/{contactId}:
+    put:
+      summary: "Nadpisuje wszystkie dane kontaktu (pełna aktualizacja)"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateContact' }
+      responses:
+        '200':
+          description: "Kontakt zaktualizowany"
+
+    patch:
+      summary: "Częściowo aktualizuje kontakt ucznia"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateContact' }
+      responses:
+        '200':
+          description: "Kontakt zaktualizowany"
+
+    delete:
+      summary: "Usuwa kontakt ucznia"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: "Kontakt usunięty" }
+    head:
+      summary: "Sprawdza istnienie kontaktu"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: "Kontakt istnieje" }
+        '404': { description: "Kontakt nie istnieje" }
+
+    options:
+      summary: "Metody dla konkretnego kontaktu"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          headers:
+            Allow:
+              schema:
+                type: string
+                example: "GET, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE"
+
+    trace:
+      summary: "Debug kontaktu"
+      tags: [Contacts]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            message/http:
+              schema:
+                type: string
+                format: http
+
+  # === NOTES CRUD ===
+  /api/students/{studentId}/notes:
+    post:
+      summary: "Dodaje nową notatkę do ucznia"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateNote' }
+      responses:
+        '201':
+          description: "Notatka dodana"
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Note' }
+    get:
+      summary: "Pobiera wszystkie notatki ucznia"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: type
+          in: query
+          schema:
+            type: integer
+            enum: [0, 1]
+          description: "Filtr po typie (0=standard, 1=dodatkowa)"
+      responses:
+        '200':
+          description: "Lista notatek"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+    head:
+      summary: "Sprawdza listę notatek ucznia"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: "Notatki dostępne" }
+
+    options:
+      summary: "Metody dla notatek ucznia"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          headers:
+            Allow:
+              schema:
+                type: string
+                example: "GET, POST, HEAD, OPTIONS, TRACE"
+
+    trace:
+      summary: "Debug listy notatek"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            message/http:
+              schema:
+                type: string
+                format: http
+
+  /api/students/{studentId}/notes/{noteId}:
+    put:
+      summary: "Nadpisuje wszystkie dane notatki (pełna aktualizacja)"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateNote' }
+      responses:
+        '200':
+          description: "Notatka zaktualizowana"
+
+    patch:
+      summary: "Częściowo aktualizuje notatkę ucznia"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateNote' }
+      responses:
+        '200':
+          description: "Notatka zaktualizowana"
+
+    delete:
+      summary: "Usuwa notatkę ucznia"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: "Notatka usunięta" }
+    head:
+      summary: "Sprawdza istnienie notatki"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: "Notatka istnieje" }
+
+    options:
+      summary: "Metody dla konkretnej notatki"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          headers:
+            Allow:
+              schema:
+                type: string
+                example: "GET, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE"
+
+    trace:
+      summary: "Debug notatki"
+      tags: [Notes]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            message/http:
+              schema:
+                type: string
+                format: http}
+
+  # === LIST CALENDAR (classDate) ucznia ===
+  /api/students/{studentId}/calendar:
+    get:
+      summary: "Pobiera kalendarz dostępności ucznia (terminy zajęć)"
+      tags: [Calendar]
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: isFree
+          in: query
+          schema:
+            type: boolean
+          description: "Filtr tylko wolne terminy"
+        - name: dayOfWeek
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 7
+          description: "Filtr po dniu tygodnia (1=poniedziałek...7=niedziela)"
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarList'
+    head:
+      summary: "Sprawdza kalendarz ucznia"
+      tags: [Calendar]
+    options:
+      summary: "Metody kalendarza"
+      tags: [Calendar]
+    trace:
+      summary: "Debug kalendarza"
+      tags: [Calendar]
+
+  # === LIST COOPERATION (fejkowo generowane) ===
+  /api/students/{studentId}/cooperation:
+    get:
+      summary: "Pobiera dane współpracy ucznia (fejkowo generowane)"
+      tags: [Cooperation]
+      description: "Dane współpracy generowane automatycznie po stronie backendu. Pełne CRUD w przyszłości."
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cooperation'
+    head:
+      summary: "Sprawdza cooperation ucznia"
+      tags: [Cooperation]
+    options:
+      summary: "Metody cooperation"
+      tags: [Cooperation]
+    trace:
+      summary: "Debug cooperation"
+      tags: [Cooperation]
