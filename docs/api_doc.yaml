@@ -53,10 +53,6 @@ components:
           format: date-time
           description: "Data ostatniej aktualizacji (auto)"
           readOnly: true
-        cooperation:
-          type: object
-          description: "Fejkowe dane współpracy (pełne w przyszłości)"
-          readOnly: true
       required: [id, name, price]
 
     CreateStudent:
