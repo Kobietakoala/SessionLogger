@@ -8,12 +8,6 @@
 - `student` 1 — N `note` (kolumna `note.student_ulid` wskazuje na `student.ulid`) 
 - `student` 1 — 1 `cooperation` (kolumna `cooperation.student_ulid` jest `UNIQUE NOT NULL`) 
 
-### UWAGA: nietypowy FK dla cooperation
-W `students.sql` relacja 1–1 jest wymuszona przez `ALTER TABLE "student" ADD FOREIGN KEY ("ulid") REFERENCES "cooperation" ("student_ulid")`, czyli to `student.ulid` referencjonuje `cooperation.student_ulid` 
-
-**Edge question (ważne):** czy to ma być odwrócone (tj. `cooperation.student_ulid` jako FK → `student.ulid`, z `UNIQUE` dla 1–1), żeby nie blokować kolejności insertów i uprościć spójność? 
-~ Nawet powinno tak być, dodaje na to taska [https://github.com/Kobietakoala/SessionLogger/issues/59]
-
 ## 2) Tabele i pola
 
 > Konwencja: wszystkie tabele mają `ulid TEXT PRIMARY KEY` oraz flagę `deleted tinyint(1) DEFAULT 0` + `created_at`, `updated_at` 
@@ -85,7 +79,7 @@ Każda tabela używa `ulid TEXT PRIMARY KEY`
 - `contact.student_ulid` → `student.ulid` 
 - `classDate.student_ulid` → `student.ulid` 
 - `note.student_ulid` → `student.ulid` 
-- `student.ulid` → `cooperation.student_ulid` (nietypowy kierunek) 
+- `cooperation.student_ulid` → `student.ulid` 
 
 ### Indeksy (pod typowe zapytania)
 - `student(name, number)` wspiera wyszukiwanie po nazwie/numerze 
@@ -163,10 +157,13 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 
 ---
 
-## Appendix A: „Decisions to confirm” (do odhaczania)
+## Appendix A: „Decisions to resolve” (do odhaczania)
 
-- [x] Odwracamy FK dla `cooperation` (child → parent), czy zostaje jak jest? ~ Tak
-- [x] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada 
-- [x] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności
-- [x] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null`
-- [x] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas
+- [x] Odwracamy FK dla `cooperation` (child → parent), czy zostaje jak jest? ~ Tak [issues/59][issues/59]
+- [ ] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada [issues/60][issues/60]
+- [ ] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności [issues/60][issues/60]
+- [ ] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null` [issues/60][issues/60]
+- [ ] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas [issues/60][issues/60]
+
+[issues/59]: https://github.com/Kobietakoala/SessionLogger/issues/59
+[issues/60]: https://github.com/Kobietakoala/SessionLogger/issues/60
