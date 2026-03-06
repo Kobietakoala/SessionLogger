@@ -157,15 +157,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 
 ---
 
-## Appendix A: „Decisions to confirm” (do odhaczania)
-
-- [x] Odwracamy FK dla `cooperation` (child → parent), czy zostaje jak jest? ~ Tak
-- [x] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada 
-- [x] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności
-- [x] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null`
-- [x] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas
-
-## Appendix B: „Decisions to resolve” (do odhaczania)
+## Appendix A: „Decisions to resolve” (do odhaczania)
 
 - [x] Odwracamy FK dla `cooperation` (child → parent), czy zostaje jak jest? ~ Tak [issues/59][issues/59]
 - [ ] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada [issues/60][issues/60]
