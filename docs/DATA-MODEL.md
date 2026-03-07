@@ -14,7 +14,7 @@
 
 ### 2.1 `student`
 - `ulid` TEXT PRIMARY KEY 
-- `name` varchar(100) (obecnie bez `NOT NULL`) 
+- `name` varchar(100) NOT NULL 
 - `number` integer (opis: numer zgłoszenia lub generatywny w zależności od typu współpracy) 
 - `price` integer (opis: cena zajęć) 
 - `rate` tinyint(1) (opis: ocena po pierwszych zajęciach 1–5) 
@@ -142,7 +142,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 ## 5) Walidacja danych (minimum dla API)
 
 **Propozycja walidacji wejścia (server-side):**
-- `student.name`: wymagane (mimo że w SQL nie ma `NOT NULL`), min 1 znak, max 100 
+- `student.name`: wymagane, min 1 znak, max 100 
 - `student.rate`: jeśli podane, to 1–5 
 - `contact.email`: jeśli podane, format email + max 254 
 - `contact.phone`: max 32, normalizacja (usuń spacje) przed zapisem
@@ -159,7 +159,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 - [x] Odwracamy FK dla `cooperation` (child → parent), czy zostaje jak jest? ~ Tak [issues/59][issues/59]
 - [ ] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada [issues/60][issues/60]
 - [x] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności [issues/60][issues/60]
-- [ ] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null` [issues/60][issues/60]
+- [x] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null` [issues/60][issues/60]
 - [ ] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas [issues/60][issues/60]
 
 [issues/59]: https://github.com/Kobietakoala/SessionLogger/issues/59

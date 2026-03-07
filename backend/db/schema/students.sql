@@ -1,7 +1,7 @@
 
 CREATE TABLE "student" (
   "ulid" TEXT PRIMARY KEY,
-  "name" varchar(100),
+  "name" varchar(100) NOT NULL,
   "number" integer,
   "price" integer,
   "rate" tinyint(1),
