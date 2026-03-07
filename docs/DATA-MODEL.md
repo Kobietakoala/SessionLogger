@@ -139,7 +139,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 
 **Edge question (krytyczne):** czy chcemy, żeby uczeń mógł istnieć bez `cooperation` (np. draft ucznia), czy `cooperation` ma być obowiązkowe od razu? ~ Cooperation nie istnieje bez ucznia, jest to encja istniejącej wspópracy między uczniem, a nauczycielem
 
-### 4.6 Hour policy (`classDate`.`hour`)
+### 4.7 Hour policy (`classDate`.`hour`)
 **Propozycja:** Kompatybilność z funkcją SQLite time() 
 
 ## 5) Walidacja danych (minimum dla API)
