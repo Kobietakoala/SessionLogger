@@ -17,7 +17,7 @@ components:
       description: "Uczeń w systemie Session Logger"
       properties:
         id:
-          type: string
+          type: [string, "null"]
           format: uuid
           description: "Unikalny identyfikator ucznia (ULID, PRIMARY KEY)"
           readOnly: true
@@ -26,22 +26,19 @@ components:
           maxLength: 100
           description: "Imię i nazwisko ucznia"
         number:
-          type: integer
+          type: [integer, "null"]
           description: "Numer zgłoszenia lub numer generatywny (zależnie od typu współpracy)"
-          nullable: true
         price:
           type: integer
           description: "Cena zajęć za godzinę"
         rate:
-          type: integer
+          type: [integer, "null"]
           minimum: 1
           maximum: 5
-          nullable: true
           description: "Ocena po pierwszych zajęciach (1-5)"
         startDate:
-          type: string
+          type: [ string, "null"]
           format: date-time
-          nullable: true
           description: "Data rozpoczęcia zajęć"
         createdAt:
           type: string
@@ -99,15 +96,14 @@ components:
           maxLength: 100
           description: "Imię/nazwisko kontaktowej osoby"
         email:
-          type: string
+          type: [string, "null"]
           format: email
           maxLength: 254
           description: "Adres e-mail (UNIQUE)"
-          null: true
         phone:
-          type: string
+          type: [string, "null"]
           maxLength: 32
-          description: "Numer telefonu (UNIQUE, NOT NULL)"
+          description: "Numer telefonu"
         createdAt:
           type: string
           format: date-time
@@ -118,7 +114,7 @@ components:
           format: date-time
           description: "Data aktualizacji"
           readOnly: true
-      required: [id, studentId, name, phone]
+      required: [id, studentId, name]
 
     CreateContact:
       type: object
@@ -136,7 +132,7 @@ components:
           type: string
           maxLength: 32
           description: "Numer telefonu"
-      required: [name, phone]
+      required: [name]
 
     UpdateContact:
       allOf:
@@ -214,10 +210,9 @@ components:
           maximum: 7
           description: "Dzień tygodnia: 1=poniedziałek, 7=niedziela"
         hour:
-          type: integer
-          minimum: 0
-          maximum: 2359
-          description: "Godzina w formacie HHMM (np. 1430 = 14:30)"
+          type: string
+          pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          description: "Godzina w formacie HH:MM (24h, ISO-8601)"
         isFree:
           type: boolean
           default: false
@@ -275,12 +270,10 @@ components:
           type: integer
           description: "Płatność: 0=blik, 1=przelew, 2=przelew opóźniony"
         boardUrl:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: "Link do tablicy"
         registrationUrl:
-          type: string
-          nullable: true
+          type: [string, "null"]
           description: "Link do zgłoszenia"
         studentId:
           type: string
@@ -488,6 +481,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Dostępne metody"
           headers:
             Allow:
               schema:
@@ -504,6 +498,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Nagłówki requestu dla ucznia {id}"
           content:
             message/http:
               schema:
@@ -568,6 +563,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Dostępne metody"
           headers:
             Allow:
               schema:
@@ -584,6 +580,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Nagłówki requestu dla kontaktów ucznia"
           content:
             message/http:
               schema:
@@ -675,6 +672,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Dostępne metody"
           headers:
             Allow:
               schema:
@@ -695,6 +693,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Nagłówki requestu dla kontaktu"
           content:
             message/http:
               schema:
@@ -765,6 +764,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Dostępne metody"
           headers:
             Allow:
               schema:
@@ -781,6 +781,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Nagłówki requestu dla notatek ucznia"
           content:
             message/http:
               schema:
@@ -871,6 +872,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Dostępne metody"
           headers:
             Allow:
               schema:
@@ -891,6 +893,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Nagłówki requestu dla notatki ucznia"
           content:
             message/http:
               schema:
@@ -921,6 +924,7 @@ paths:
           description: "Filtr po dniu tygodnia (1=poniedziałek...7=niedziela)"
       responses:
         '200':
+          description: "Kalendarz ucznia"
           content:
             application/json:
               schema:
@@ -948,6 +952,7 @@ paths:
           schema: { type: string }
       responses:
         '200':
+          description: "Dane współpracy ucznia"
           content:
             application/json:
               schema:

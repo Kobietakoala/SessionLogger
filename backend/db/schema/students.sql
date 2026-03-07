@@ -1,7 +1,7 @@
 
 CREATE TABLE "student" (
   "ulid" TEXT PRIMARY KEY,
-  "name" varchar(100),
+  "name" varchar(100) NOT NULL,
   "number" integer,
   "price" integer,
   "rate" tinyint(1),
@@ -13,9 +13,9 @@ CREATE TABLE "student" (
 
 CREATE TABLE "contact" (
   "ulid" TEXT PRIMARY KEY,
-  "name" "VARCHAR(100)" NOT NULL,
-  "email" "VARCHAR(254)" UNIQUE,
-  "phone" "VARCHAR(32)" UNIQUE NOT NULL,
+  "name" VARCHAR(100) NOT NULL,
+  "email" VARCHAR(254) UNIQUE,
+  "phone" VARCHAR(32),
   "student_ulid" text REFERENCES "student" ("ulid"),
   "deleted" tinyint(1) DEFAULT 0,
   "created_at" timestamp,
@@ -25,7 +25,7 @@ CREATE TABLE "contact" (
 CREATE TABLE "classDate" (
   "ulid" TEXT PRIMARY KEY,
   "dayOfWeek" tinyint(1) NOT NULL,
-  "hour" tinyint(2) NOT NULL,
+  "hour" TEXT NOT NULL,
   "isFree" bool NOT NULL DEFAULT 0,
   "repeat" bool DEFAULT 0,
   "everyDays" tinyint(1) DEFAULT 0,
@@ -73,9 +73,9 @@ COMMENT ON TABLE "classDate" IS 'Zestaw terminów zajęć, możliwych do zarezer
 
 COMMENT ON COLUMN "classDate"."dayOfWeek" IS 'termin dnia zajec od 1(pon) do 7(ndz)';
 
-COMMENT ON COLUMN "classDate"."hour" IS 'godzina zajec';
+COMMENT ON COLUMN "classDate"."hour" IS 'godzina zajec, format HH:MM (24h, ISO-8601)';
 
-COMMENT ON COLUMN "classDate"."isFree" IS 'czy ta godzina jest dostepna, 0-nie, 1-tak';
+COMMENT ON COLUMN "classDate"."isFree" IS 'czy termin jest wolny, 0-nie, 1-tak';
 
 COMMENT ON COLUMN "classDate"."repeat" IS 'czy termin jest powtarzalny, 0-nie, 1-tak';
 
