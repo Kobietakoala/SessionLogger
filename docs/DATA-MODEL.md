@@ -27,7 +27,7 @@
 - `ulid` TEXT PRIMARY KEY 
 - `name` VARCHAR(100) NOT NULL 
 - `email` VARCHAR(254) UNIQUE (nullable) 
-- `phone` VARCHAR(32) UNIQUE NOT NULL 
+- `phone` VARCHAR(32) 
 - `student_ulid` text (FK → `student.ulid`, obecnie nullable) 
 - `deleted` tinyint(1) DEFAULT 0 
 - `created_at` timestamp, `updated_at` timestamp 
@@ -72,7 +72,6 @@ Każda tabela używa `ulid TEXT PRIMARY KEY`
 
 ### Unikalność (ważne pod walidację API/UI)
 - `contact.email` ma constraint `UNIQUE` 
-- `contact.phone` ma constraint `UNIQUE` oraz `NOT NULL` 
 - `cooperation.student_ulid` ma constraint `UNIQUE NOT NULL` (1 rekord współpracy na ucznia) 
 
 ### Klucze obce (FK)
@@ -119,11 +118,9 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 ~ Robimy soft-delete
 - Czy dopuszczamy „undelete” (przywrócenie) i jak wtedy traktujemy rekordy zależne?
 ~ Nie dopuszczamy takiej opcji, od tego będzie archiwizacja
-- Co z unikalnościami po soft-delete: czy `contact.phone` ma być unikalny również dla usuniętych rekordów (obecnie constraint wymusza unikalność globalnie)? 
-~ W takim przypadku, `contact.phone` nie powinien być porównywalny z usuniętymi danymi
 
 ### 4.4 Uniqueness policy (email/phone)
-`contact.email` i `contact.phone` są `UNIQUE`, a `phone` jest `NOT NULL` 
+`contact.email` jest `UNIQUE`
 
 **Edge questions:**
 - Czy na pewno numer telefonu ma być globalnie unikalny (np. rodzeństwo/rodzic jako kontakt dla kilku uczniów)? ~ Nie, zmianiamy koncepcje, telefon nie będzie jednak unikalny [https://github.com/Kobietakoala/SessionLogger/issues/60]
@@ -148,7 +145,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 - `student.name`: wymagane (mimo że w SQL nie ma `NOT NULL`), min 1 znak, max 100 
 - `student.rate`: jeśli podane, to 1–5 
 - `contact.email`: jeśli podane, format email + max 254 
-- `contact.phone`: wymagane, max 32, normalizacja (usuń spacje) przed zapisem
+- `contact.phone`: max 32, normalizacja (usuń spacje) przed zapisem
 - `classDate.dayOfWeek`: 1–7 
 - ~ `classDate.hour`: 0–23 (jeśli trzymamy „godzina”) ~ Zmiana na `classDate.time`: 00:00 - 23:59
 - `cooperation.type`: enum (0/1 na start) 
@@ -161,7 +158,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 
 - [x] Odwracamy FK dla `cooperation` (child → parent), czy zostaje jak jest? ~ Tak [issues/59][issues/59]
 - [ ] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada [issues/60][issues/60]
-- [ ] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności [issues/60][issues/60]
+- [x] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności [issues/60][issues/60]
 - [ ] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null` [issues/60][issues/60]
 - [ ] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas [issues/60][issues/60]
 

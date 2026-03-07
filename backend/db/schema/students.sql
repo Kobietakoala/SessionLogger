@@ -15,7 +15,7 @@ CREATE TABLE "contact" (
   "ulid" TEXT PRIMARY KEY,
   "name" "VARCHAR(100)" NOT NULL,
   "email" "VARCHAR(254)" UNIQUE,
-  "phone" "VARCHAR(32)" UNIQUE NOT NULL,
+  "phone" "VARCHAR(32)",
   "student_ulid" text REFERENCES "student" ("ulid"),
   "deleted" tinyint(1) DEFAULT 0,
   "created_at" timestamp,

@@ -107,7 +107,7 @@ components:
         phone:
           type: string
           maxLength: 32
-          description: "Numer telefonu (UNIQUE, NOT NULL)"
+          description: "Numer telefonu"
         createdAt:
           type: string
           format: date-time
@@ -118,7 +118,7 @@ components:
           format: date-time
           description: "Data aktualizacji"
           readOnly: true
-      required: [id, studentId, name, phone]
+      required: [id, studentId, name]
 
     CreateContact:
       type: object
@@ -136,7 +136,7 @@ components:
           type: string
           maxLength: 32
           description: "Numer telefonu"
-      required: [name, phone]
+      required: [name]
 
     UpdateContact:
       allOf:
