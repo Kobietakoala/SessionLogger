@@ -36,7 +36,7 @@
 ### 2.3 `classDate` (terminy zajęć / sloty)
 - `ulid` TEXT PRIMARY KEY 
 - `dayOfWeek` tinyint(1) NOT NULL (opis: 1=pon … 7=ndz) 
-- `hour` TIME NOT NULL (opis: godzina zajęć) 
+- `hour` TEXT NOT NULL (opis: godzina zajęć, format HH:MM (24h, ISO-8601)) 
 - `isFree` bool NOT NULL DEFAULT 0 (opis: czy termin jest wolny) 
 - `repeat` bool DEFAULT 0 (opis: czy termin powtarzalny) 
 - `everyDays` tinyint(1) DEFAULT 0 (opis: co ile dni; wartości 0,7,14,21,28) 
@@ -130,7 +130,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 `classDate.dayOfWeek` jest opisane jako 1–7, a `everyDays` jako 0/7/14/21/28 
 
 **Edge questions:**
-- Czy `hour` to tylko godzina (0–23), czy dopuszczamy półgodziny (wtedy potrzebne `minute` albo `time`)? ~ Dopuszczamy , zmieniamy na time[https://github.com/Kobietakoala/SessionLogger/issues/60]
+- Czy `hour` to tylko godzina (0–23), czy dopuszczamy półgodziny (wtedy potrzebne `minute` albo `time`)? ~ Dopuszczamy , zmieniamy na text[https://github.com/Kobietakoala/SessionLogger/issues/60]
 - Gdy `repeat=0`, czy `everyDays` musi być 0 (walidacja na wejściu)? ~ Tak
 - Czy `isFree=1` oznacza „slot do zarezerwowania”, czy „nie ma zajęć” (nazwa vs semantyka)? ~ slot do zarezerowania
 
@@ -138,6 +138,9 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 `cooperation.student_ulid` jest `UNIQUE NOT NULL`, co naturalnie pasuje do relacji 1–1 z uczniem 
 
 **Edge question (krytyczne):** czy chcemy, żeby uczeń mógł istnieć bez `cooperation` (np. draft ucznia), czy `cooperation` ma być obowiązkowe od razu? ~ Cooperation nie istnieje bez ucznia, jest to encja istniejącej wspópracy między uczniem, a nauczycielem
+
+### 4.6 Hour policy (`classDate`.`hour`)
+**Propozycja:** Kompatybilność z funkcją SQLite time() 
 
 ## 5) Walidacja danych (minimum dla API)
 
@@ -147,7 +150,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 - `contact.email`: jeśli podane, format email + max 254 
 - `contact.phone`: max 32, normalizacja (usuń spacje) przed zapisem
 - `classDate.dayOfWeek`: 1–7 
-- ~ `classDate.hour`: 0–23 (jeśli trzymamy „godzina”) ~ Zmiana na `classDate.time`: 00:00 - 23:59
+- ~ `classDate.hour`: 0–23 (jeśli trzymamy „godzina”) ~ Zmiana na `classDate.text`: 00:00 - 23:59
 - `cooperation.type`: enum (0/1 na start) 
 - `cooperation.paymentType`: enum (0/1/2) 
 - `note.type`: enum (0/1 na start) 

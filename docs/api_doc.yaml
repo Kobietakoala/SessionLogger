@@ -214,10 +214,9 @@ components:
           maximum: 7
           description: "Dzień tygodnia: 1=poniedziałek, 7=niedziela"
         hour:
-          type: integer
-          minimum: 0
-          maximum: 2359
-          description: "Godzina w formacie HHMM (np. 1430 = 14:30)"
+          type: text
+          pattern: "^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$"
+          description: "Godzina w formacie HH:MM (24h, ISO-8601)"
         isFree:
           type: boolean
           default: false

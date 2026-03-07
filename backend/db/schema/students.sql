@@ -25,7 +25,7 @@ CREATE TABLE "contact" (
 CREATE TABLE "classDate" (
   "ulid" TEXT PRIMARY KEY,
   "dayOfWeek" tinyint(1) NOT NULL,
-  "hour" TIME NOT NULL,
+  "hour" TEXT NOT NULL,
   "isFree" bool NOT NULL DEFAULT 0,
   "repeat" bool DEFAULT 0,
   "everyDays" tinyint(1) DEFAULT 0,
@@ -73,7 +73,7 @@ COMMENT ON TABLE "classDate" IS 'Zestaw terminów zajęć, możliwych do zarezer
 
 COMMENT ON COLUMN "classDate"."dayOfWeek" IS 'termin dnia zajec od 1(pon) do 7(ndz)';
 
-COMMENT ON COLUMN "classDate"."hour" IS 'godzina zajec';
+COMMENT ON COLUMN "classDate"."hour" IS 'godzina zajec, format HH:MM (24h, ISO-8601)';
 
 COMMENT ON COLUMN "classDate"."isFree" IS 'czy termin jest wolny, 0-nie, 1-tak';
 
