@@ -4,7 +4,7 @@ import { STUDENTS } from './data/students';
 import SessionForm from './components/SessionForm';
 import SessionHistory from './components/SessionHistory';
 import StudentStats from './components/StudentStats';
-import StudentForm from './components/StudenForm';
+import StudentForm from './components/StudentForm';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('form');
