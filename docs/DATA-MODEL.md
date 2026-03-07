@@ -36,8 +36,8 @@
 ### 2.3 `classDate` (terminy zajęć / sloty)
 - `ulid` TEXT PRIMARY KEY 
 - `dayOfWeek` tinyint(1) NOT NULL (opis: 1=pon … 7=ndz) 
-- `hour` tinyint(2) NOT NULL (opis: godzina zajęć) 
-- `isFree` bool NOT NULL DEFAULT 0 (opis: czy godzina dostępna) 
+- `hour` TIME NOT NULL (opis: godzina zajęć) 
+- `isFree` bool NOT NULL DEFAULT 0 (opis: czy termin jest wolny) 
 - `repeat` bool DEFAULT 0 (opis: czy termin powtarzalny) 
 - `everyDays` tinyint(1) DEFAULT 0 (opis: co ile dni; wartości 0,7,14,21,28) 
 - `student_ulid` text (FK → `student.ulid`, obecnie nullable) 
@@ -160,7 +160,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 - [ ] Soft-delete: kaskada vs brak kaskady przy usuwaniu `student` ~ Kaskada [issues/60][issues/60]
 - [x] Unikalność `contact.phone`: globalnie vs per uczeń vs brak `UNIQUE` ~ Brak unikalności [issues/60][issues/60]
 - [x] Czy `student.name` ma być `NOT NULL` w bazie (i w API), czy dopuszczamy puste? ~ Tak, name jako `not null` [issues/60][issues/60]
-- [ ] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas [issues/60][issues/60]
+- [x] Jak dokładnie interpretujemy `classDate.isFree` i `repeat/everyDays` w UI - `isFree` - czy termin wolny, `repeat` - czy termin jest powtarzalny, `everyDays` - jeżeli jest powtarzalny, to co jaki czas [issues/60][issues/60]
 
 [issues/59]: https://github.com/Kobietakoala/SessionLogger/issues/59
 [issues/60]: https://github.com/Kobietakoala/SessionLogger/issues/60
