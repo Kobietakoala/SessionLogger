@@ -215,7 +215,7 @@ components:
           description: "Dzień tygodnia: 1=poniedziałek, 7=niedziela"
         hour:
           type: text
-          pattern: "^[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$"
+          pattern: "^[0-2][0-9]:[0-5][0-9]$"
           description: "Godzina w formacie HH:MM (24h, ISO-8601)"
         isFree:
           type: boolean
