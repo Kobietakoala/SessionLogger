@@ -150,7 +150,7 @@ W każdej tabeli istnieje flaga `deleted tinyint(1) DEFAULT 0`, co sugeruje soft
 - `contact.email`: jeśli podane, format email + max 254 
 - `contact.phone`: max 32, normalizacja (usuń spacje) przed zapisem
 - `classDate.dayOfWeek`: 1–7 
-- `classDate.hour`: 00:00 - 23:59, regex `^[0-2][0-9]:[0-5][0-9]$` (24h, ISO-8601)
+- `classDate.hour`: 00:00 - 23:59, regex `^([01][0-9]|2[0-3]):[0-5][0-9]$` (24h, ISO-8601)
 - `cooperation.type`: enum (0/1 na start) 
 - `cooperation.paymentType`: enum (0/1/2) 
 - `note.type`: enum (0/1 na start) 
